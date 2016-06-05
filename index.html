@@ -1,16 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>eZdravje :: 4. DN :: OIS 2015/2016</title>
   <link href="knjiznice/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {padding-top: 70px;}
+    body {
+      padding: 10px;
+      padding-top: 70px;
+      padding-bottom: 30px;
+      font-size: medium;
+      font-family: "Times New Roman", Times, serif;
+    }
+    
+    hr {
+      border: 0;
+      height: 1px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    }
+    
+    .btn {
+      margin-top: 10px;
+    }
+    
+    .obvestilo {
+      margin-left: 10px;
+    }
+    
+    .panel-body {
+      background: #F0F8FF;
+    }
   </style>
   <script src="knjiznice/js/jquery-2.2.3.min.js"></script>
   <script src="knjiznice/js/bootstrap.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJNd7obWK4KyN0dkt7q2zDWrid_wvU2uY&libraries=places"></script>
   <script src="knjiznice/js/koda.js"></script>
 </head>
+
 <body>
 
   <!-- ZAČETEK: Menujska vrstica na vrhu spletne strani -->
@@ -22,14 +51,14 @@
           <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
         </button>
         <!-- ZAČETEK: Ime vaše aplikacije -->
-        <a class="navbar-brand" href="index.html">{ime vaše aplikacije}</a>
+        <a class="navbar-brand" href="index.html">eDocta</a>
         <!-- KONEC: Ime vaše aplikacije -->
       </div>
       <div class="collapse navbar-collapse" id="menujska-vrstica">
         <ul class="nav navbar-nav">
           <li><a href="opis.html">Opis ideje</a></li>
           <li><a href="nacrt.html">Načrt informacijske rešitve</a></li>
-          <li><a href="#">Generiranje podatkov</a></li>
+          <li><a href="#" onclick="generirajVzorec();">Generiranje podatkov</a></li>
         </ul>
       </div>
     </div>
@@ -39,12 +68,194 @@
   <!-- ZAČETEK: Vsebina aplikacije -->
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 text-center">
-        <p class="lead"><strong>TO-DO</strong>: Na tem mestu implementirajte vašo aplikacijo.</p>
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3><b>Kreiranje novega EHR ID-ja</b> za novega uporabnika</h3>
+          <hr>
+        </div>
+        <div class="panel-body">
+
+          <div class="form-horizontal">
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Ime pacienta:</label>
+              <div class="input-group col-sm-8">
+                <input id="createIme" type="text" class="form-control" placeholder="Tukaj vpišite ime pacienta">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Priimek pacienta:</label>
+              <div class="input-group col-sm-8">
+                <input id="createPriimek" type="text" class="form-control" placeholder="Tukaj vpišite priimek pacienta">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Datum rojstva pacienta:</label>
+              <div class="input-group col-sm-8">
+                <input id="createRojstvo" type="text" class="form-control" placeholder="Tukaj vpišite datum rojstva pacienta [2016-07-12T13:34]">
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-success" id="kreirajEhrGumb" onclick="kreirajEHRpacienta();"><b>Kreiraj nov EHR ID</b></button>
+          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="label label-pill label-default fade-in" id="kreirajOpozorilo"></span>
+          <div class="row"></div>
+          <button type="button" class="btn btn-success" id="hideshow"><b>Dodaj meritve za pacienta</b></button>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- KONEC: Vsebina aplikacije -->
+    <div id="contentMeritev" style="display: none;">
+      <div class="row">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <h3 class="col-sm-7"><b>Dodajanje meritev za pacienta</b></h3>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="form-horizontal col-sm-5">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">Izbira vzorca:</label>
+                  <div class="input-group col-sm-8">
+                    <select class="form-control input-sm" id="addIzbiroEHR">
+                      <option value="">- Izberite -</option>
+                      <option value="7bcc96d8-bf97-46a9-a734-f91de6016097">Snoop Dogg</option>
+                      <option value="850dff54-a4de-465f-ab79-58eb2db0f578">Donald Trump</option>
+                      <option value="0f2f4363-2819-4031-bb8a-4f96edcedc8d">Janja Novak</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">Ehr ID:</label>
+                  <div class="input-group col-sm-8">
+                    <input id="addEHR" type="text" class="form-control" placeholder="3195606a-09ea-4294-92bc-9784806c0ac6">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Telesna višina</label>
+                <div class="input-group col-sm-9">
+                  <input id="addVisina" type="text" class="form-control">
+                  <span class="input-group-addon" id="basic-addon2">cm</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Telesna teža</label>
+                <div class="input-group col-sm-9">
+                  <input id="addTeza" type="text" class="form-control">
+                  <span class="input-group-addon" id="basic-addon2">kg</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Sistolični tlak</label>
+                <div class="input-group col-sm-9">
+                  <input id="addSistolicni" type="text" class="form-control">
+                  <span class="input-group-addon" id="basic-addon2">mmHg</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Diastolični tlak</label>
+                <div class="input-group col-sm-9">
+                  <input id="addDiastolicni" type="text" class="form-control">
+                  <span class="input-group-addon" id="basic-addon2">mmHg</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-success" id="dodajPodatke" onclick="dodajPodatkeVzorcaGumb();"><b>Dodaj meritve</b></button>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="label label-pill label-default fade-in" id="dodajOpozorilo"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      $("#hideshow").click(function() {
+        $("#contentMeritev").toggle("normal");
+      });
+    </script>
+    <div class="row">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <div class="row">
+            <h3 class="col-sm-7"><b>Zgodovina meritev pacienta</b></h3>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="form-horizontal col-sm-5">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Izbira vzorca:</label>
+                <div class="input-group col-sm-8">
+                  <select class="form-control input-sm" id="preberiIzbiroEHR">
+                    <option value="">- Izberite -</option>
+                    <option value="7bcc96d8-bf97-46a9-a734-f91de6016097">Snoop Dogg</option>
+                    <option value="850dff54-a4de-465f-ab79-58eb2db0f578">Donald Trump</option>
+                    <option value="0f2f4363-2819-4031-bb8a-4f96edcedc8d">Janja Novak</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Ehr ID:</label>
+                <div class="input-group col-sm-8">
+                  <input id="preberiEHR" type="text" class="form-control" placeholder="3195606a-09ea-4294-92bc-9784806c0ac6">
+                </div>
+              </div>
+              <button type="button" id="preberiZgodovino" onclick="preberiZgodovino();" class="btn btn-success"><b>Prikazi zgodovino</b></button>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span id="opozoriloBranja"></span>
+            </div>
+          </div>
+        </div>
+        <div id="ageWarning" class="panel-body">
+          <table id="podatkiPacienta" class="table">
+            <thead>
+              <tr>
+                <th>Št. meritve</th>
+                <th>Čas meritve</th>
+                <th>Krvni tlak (sistolični/diastolični)</th>
+                <th>Teža</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="panel-body">
+        <div class="panel-heading">
+          <div class="panel panel-default" id="prostorGraf" style="border-color: 0x0FFFFF; border: 0px;">
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div id="bolnice" style="display: none;">
+        <!--style="display: none;" -->
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <div class="row">
+              <h3 class="col-sm-7"><b>Najbližje bolnišnice</b></h3>
+            </div>
+            <div class="panel body" id="bolnisnice" style="border-color: 0x0FFFFF; border: 0px;">
+              <div id="google"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+    <!-- KONEC: Vsebina aplikacije -->
 
 </body>
+
 </html>
