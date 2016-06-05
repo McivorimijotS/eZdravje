@@ -330,7 +330,7 @@ function narisiGraf(podatki) {
             },
             series: [{
                 name: 'Krvni tlak',
-                podatki: podatki
+                data: podatki
             }]
         });
     });
