@@ -24,7 +24,7 @@ function getSessionId() {
 /**
  * Generator podatkov za novega pacienta, ki bo uporabljal aplikacijo. Pri
  * generiranju podatkov je potrebno najprej kreirati novega pacienta z
- * določenimi osebnimi podatki (ime, priimek in datum rojstva) ter za njega
+ * določenimi osebnimi data (ime, priimek in datum rojstva) ter za njega
  * shraniti nekaj podatkov o vitalnih znakih.
  * @param stPacienta zaporedna številka pacienta (1, 2 ali 3)
  * @return ehrId generiranega pacienta
@@ -60,7 +60,7 @@ function generirajPodatke(stPacienta) {
 
             for (var i = 0; i < 10; i++) {
                 var random = Math.round((Math.random() * 100) + 1);
-                dateTime = new Date(1990 + i, (5 + random) % 3 + 3, 4, (13 + random * random) % 24, (20 + random) % 24);
+                var dateTime = new Date(1990 + i, (5 + random) % 3 + 3, 4, (13 + random * random) % 24, (20 + random) % 24);
                 dodajPodatkeVzorca(ehrId, {
                     datum: dateTime.toISOString().substring(0, 16),
                     visina: heights[0][i],
@@ -77,7 +77,7 @@ function generirajPodatke(stPacienta) {
 
             for (var i = 0; i < 10; i++) {
                 var random = Math.round((Math.random() * 100) + 1);
-                dateTime = new Date(1995 + i, (4 + random) % 3 + 3, 10, (9 + random * random) % 24, (50 + random) % 24);
+                var dateTime = new Date(1995 + i, (4 + random) % 3 + 3, 10, (9 + random * random) % 24, (50 + random) % 24);
                 dodajPodatkeVzorca(ehrId, {
                     datum: dateTime.toISOString().substring(0, 16),
                     visina: heights[1][i],
@@ -94,7 +94,7 @@ function generirajPodatke(stPacienta) {
 
             for (var i = 0; i < 10; i++) {
                 var random = Math.round((Math.random() * 100) + 1);
-                dateTime = new Date(1992 + i, (1 + random) % 3 + 3, 15, (17 + random * random) % 24, (35 + random) % 24);
+                var dateTime = new Date(1992 + i, (1 + random) % 3 + 3, 15, (17 + random * random) % 24, (35 + random) % 24);
                 dodajPodatkeVzorca(ehrId, {
                     datum: dateTime.toISOString().substring(0, 16),
                     visina: heights[2][i],
@@ -135,8 +135,8 @@ function kreirajEHRvzorec(ime, priimek, datumRojstva) {
         url: baseUrl + '/ehr',
         async: false,
         type: 'POST',
-        success: function(podatki) {
-            var ehrId = podatki.ehrId;
+        success: function(data) {
+            var ehrId = data.ehrId;
             var partyData = {
                 firstNames: ime,
                 lastNames: priimek,
@@ -150,7 +150,7 @@ function kreirajEHRvzorec(ime, priimek, datumRojstva) {
                 url: baseUrl + "/demographics/party",
                 type: 'POST',
                 contentType: 'application/json',
-                podatki: JSON.stringify(partyData),
+                data: JSON.stringify(partyData),
                 success: function(party) {
                     $('#kreirajOpozorilo').text('Uspešno kreiran EHR ID za: ' + ime + ' ' + priimek + ' (' + ehrId + ')');
                     $('#addEHR').val(ehrId);
@@ -245,36 +245,36 @@ function preberiZgodovino() {
     }
 }
 
-function dodajPodatkeVzorca(ehrId, podatki) {
+function dodajPodatkeVzorca(ehrId, data) {
     var sessionId = getSessionId();
     $.ajaxSetup({
         headers: {
             "Ehr-Session": sessionId
         }
     });
-    var podatki = {
+    var data = {
         "ctx/language": "en",
         "ctx/territory": "SI",
-        "ctx/time": podatki.datum,
-        "vital_signs/height_length/any_event/body_height_length": podatki.visina,
-        "vital_signs/body_weight/any_event/body_weight": podatki.teza,
-        "vital_signs/blood_pressure/any_event/systolic": podatki.sistolicni,
-        "vital_signs/blood_pressure/any_event/diastolic": podatki.diastolicni,
+        "ctx/time": data.datum,
+        "vital_signs/height_length/any_event/body_height_length": data.visina,
+        "vital_signs/body_weight/any_event/body_weight": data.teza,
+        "vital_signs/blood_pressure/any_event/systolic": data.sistolicni,
+        "vital_signs/blood_pressure/any_event/diastolic": data.diastolicni,
 
     };
     var parametriZahteve = {
         ehrId: ehrId,
         templateId: 'Vital Signs',
         format: 'FLAT',
-        committer: podatki.merilec
+        committer: data.merilec
     };
     $.ajax({
         url: baseUrl + "/composition?" + $.param(parametriZahteve),
         type: 'POST',
         contentType: 'application/json',
-        podatki: JSON.stringify(podatki),
+        data: JSON.stringify(data),
         success: function(odgovor) {
-            $('#dodajOpozorilo').text('Podatki so dodani');
+            $('#dodajOpozorilo').text('data so dodani');
         },
         error: function(err) {
             $('#dodajOpozorilo').text('Napaka! Popravite podatke');
@@ -298,7 +298,7 @@ function dodajPodatkeVzorcaGumb() {
     $('#addDiastolicni').val('');
 }
 
-function narisiGraf(podatki) {
+function narisiGraf(data) {
     $(function() {
         $('#prostorGraf').highcharts({
             title: {
@@ -331,7 +331,7 @@ function narisiGraf(podatki) {
             },
             series: [{
                 name: 'Krvni tlak',
-                data: podatki
+                data: data
             }]
         });
     });
@@ -373,7 +373,7 @@ function drawMap(location) {
             type: ['hospital']
         }, callback);
     }
-    
+
     function callback(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             for (var i = 0; i < results.length; i++) {
@@ -408,5 +408,5 @@ $(window).load(function() {
         // console.log($('#branje_selectEhrId').val());
         $('#preberiEHR').val($('#preberiIzbiroEHR').val());
     });
-    
+
 });
