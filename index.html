@@ -36,7 +36,7 @@
   <script src="knjiznice/js/bootstrap.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJNd7obWK4KyN0dkt7q2zDWrid_wvU2uY&libraries=places"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
   <script src="knjiznice/js/koda.js"></script>
 </head>
 
@@ -237,6 +237,7 @@
       </div>
     </div>
     <div class="row">
+
       <div id="bolnice" style="display: none;">
         <!--style="display: none;" -->
         <div class="panel panel-info">
@@ -244,17 +245,16 @@
             <div class="row">
               <h3 class="col-sm-7"><b>Najbližje bolnišnice</b></h3>
             </div>
-            <div class="panel body" id="bolnisnice" style="border-color: 0x0FFFFF; border: 0px;">
-              <div id="google"></div>
-            </div>
+            <div id="map_canvas" style="width:1100px;height:500px;"></div>
           </div>
         </div>
       </div>
-
-
-
     </div>
-    <!-- KONEC: Vsebina aplikacije -->
+
+
+
+  </div>
+  <!-- KONEC: Vsebina aplikacije -->
 
 </body>
 

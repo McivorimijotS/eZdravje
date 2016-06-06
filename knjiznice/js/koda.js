@@ -214,7 +214,7 @@ function preberiZgodovino() {
                                 results += "</table>";
                                 $("#podatkiPacienta tbody").append(results);
                                 zaGraf.push(tlaki[i].systolic);
-                                
+
                             }
                             console.log(zaGraf);
                             Array.prototype.max = function() {
@@ -223,6 +223,7 @@ function preberiZgodovino() {
 
                             if (zaGraf.max() > 139) {
                                 $("#bolnice").toggle("normal");
+                                pridobiBolnice();
                             }
                             narisiGraf(zaGraf);
                         }
@@ -340,10 +341,12 @@ function pridobiBolnice() {
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-                var location = {lat: position.coords.latitude, lng: position.coords.longitude};
-                drawMap(location);
-            }
-        );
+            var location = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            drawMap(location);
+        });
     }
     else {
         console.log("Ta brskalnik ne podpira geolokacije");
@@ -351,49 +354,50 @@ function pridobiBolnice() {
 
 }
 
-function drawMap(location){
-   
+function drawMap(location) {
+
     var map, infowindow;
 
-    function initMap(location) {
-        map = new google.maps.Map(document.getElementById('google'), {
-        	center: location,
-        	zoom: 8
+    function initialize(location) {
+        map = new google.maps.Map(document.getElementById("map_canvas"), {
+            center: location,
+            zoom: 12
         });
- 
+
         infowindow = new google.maps.InfoWindow();
         var service = new google.maps.places.PlacesService(map);
-        
+
         service.nearbySearch({
-        	location: location,
-          	radius: 10000,
-          	type: ['hospital']
+            location: location,
+            radius: 30000,
+            type: ['hospital']
         }, callback);
-  	}
-
-  	function callback(results, status) {
+    }
+    
+    function callback(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-      		for (var i = 0; i < results.length; i++) {
-    			createMarker(results[i]);
-      		}
+            for (var i = 0; i < results.length; i++) {
+                createMarker(results[i]);
+            }
         }
-  	}
+    }
 
-  	function createMarker(place) {
-    	var placeLoc = place.geometry.location;
+    function createMarker(place) {
+        var placeLoc = place.geometry.location;
         var marker = new google.maps.Marker({
-      		map: map,
-          	position: place.geometry.location
+            map: map,
+            position: place.geometry.location
         });
 
         google.maps.event.addListener(marker, 'click', function() {
-        	infowindow.setContent(place.name);
-          	infowindow.open(map, this);
+            infowindow.setContent(place.name);
+            infowindow.open(map, this);
         });
-  	}
-  	
-  	initMap(location);
+    }
+
+    initialize(location);
 }
+
 
 $(window).load(function() {
     $("#addIzbiroEHR").change(function() {
@@ -404,5 +408,5 @@ $(window).load(function() {
         // console.log($('#branje_selectEhrId').val());
         $('#preberiEHR').val($('#preberiIzbiroEHR').val());
     });
-
+    
 });
